@@ -10,6 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +20,8 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private  final ModelMapper modelMapper;
+    private final   ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -33,6 +35,7 @@ public class UserService implements UserDetailsService {
         }
         User toBeCreatedUser=modelMapper.map(signupDTO,User.class);
         User tosaveUser=userRepository.save(toBeCreatedUser);
+        toBeCreatedUser.setPassword(passwordEncoder.encode(toBeCreatedUser.getPassword()));
         return  modelMapper.map(tosaveUser,UserDTO.class);
     }
 
