@@ -33,10 +33,10 @@ public class UserService implements UserDetailsService {
         if(user.isPresent()){
             throw new BadCredentialsException("User with this email is already exist" + signupDTO.getEmail());
         }
-        User toBeCreatedUser=modelMapper.map(signupDTO,User.class);
-        User tosaveUser=userRepository.save(toBeCreatedUser);
+        User toBeCreatedUser = modelMapper.map(signupDTO, User.class);
         toBeCreatedUser.setPassword(passwordEncoder.encode(toBeCreatedUser.getPassword()));
-        return  modelMapper.map(tosaveUser,UserDTO.class);
+        User savedUser = userRepository.save(toBeCreatedUser);
+        return modelMapper.map(savedUser, UserDTO.class);
     }
 
 }
