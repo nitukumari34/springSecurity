@@ -2,7 +2,9 @@ package com.SecurityApp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,17 +35,23 @@ public class WebSecurityConfig {
 
         return httpSecurity.build();
     }
-    @Bean
-    UserDetailsService myInMemoryUserDetailsService(){
-        UserDetails normalUser= User.withUsername("Nitu").
-                password(passwordEncoder().encode("Nitu@123"))
-                .roles("USER").build();
-        UserDetails adminUser=User.withUsername("Riya")
-                .password(passwordEncoder().encode("Riya@123"))
-                .roles("ADMIN").build();
 
-        return  new InMemoryUserDetailsManager(normalUser,adminUser);
+    //AuthenticationManager
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config){
+       return  config.getAuthenticationManager();
     }
+//    @Bean
+//    UserDetailsService myInMemoryUserDetailsService(){
+//        UserDetails normalUser= User.withUsername("Nitu").
+//                password(passwordEncoder().encode("Nitu@123"))
+//                .roles("USER").build();
+//        UserDetails adminUser=User.withUsername("Riya")
+//                .password(passwordEncoder().encode("Riya@123"))
+//                .roles("ADMIN").build();
+//
+//        return  new InMemoryUserDetailsManager(normalUser,adminUser);
+//    }
 
     @Bean
     PasswordEncoder passwordEncoder(){
