@@ -1,12 +1,16 @@
 package com.SecurityApp.services;
 
+import com.SecurityApp.dto.LoginDTO;
 import com.SecurityApp.dto.SignupDTO;
 import com.SecurityApp.dto.UserDTO;
 import com.SecurityApp.entities.User;
 import com.SecurityApp.respositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,6 +27,7 @@ public class UserService implements UserDetailsService {
     private final   ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
@@ -38,5 +43,6 @@ public class UserService implements UserDetailsService {
         User savedUser = userRepository.save(toBeCreatedUser);
         return modelMapper.map(savedUser, UserDTO.class);
     }
+
 
 }
