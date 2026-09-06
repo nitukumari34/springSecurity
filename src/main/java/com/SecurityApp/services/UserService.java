@@ -24,18 +24,23 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final   ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new BadCredentialsException("User with email " + username + " not found"));
     }
-    public UserDTO signup(SignupDTO signupDTO){
-        Optional<User> user=userRepository.findByEmail(signupDTO.getEmail());
-        if(user.isPresent()){
+    public  User getUserById(Long userId){
+       return  userRepository.findById(userId)
+                .orElseThrow(() -> new BadCredentialsException("User with id " + userId + " not found"));
+
+    }
+
+    public UserDTO signup(SignupDTO signupDTO) {
+        Optional<User> user = userRepository.findByEmail(signupDTO.getEmail());
+        if (user.isPresent()) {
             throw new BadCredentialsException("User with this email is already exist" + signupDTO.getEmail());
         }
         User toBeCreatedUser = modelMapper.map(signupDTO, User.class);
@@ -43,6 +48,5 @@ public class UserService implements UserDetailsService {
         User savedUser = userRepository.save(toBeCreatedUser);
         return modelMapper.map(savedUser, UserDTO.class);
     }
-
 
 }
