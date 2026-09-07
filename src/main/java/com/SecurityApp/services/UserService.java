@@ -1,16 +1,12 @@
 package com.SecurityApp.services;
 
-import com.SecurityApp.dto.LoginDTO;
 import com.SecurityApp.dto.SignupDTO;
 import com.SecurityApp.dto.UserDTO;
 import com.SecurityApp.entities.User;
 import com.SecurityApp.respositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
