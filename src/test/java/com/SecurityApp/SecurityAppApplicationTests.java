@@ -22,11 +22,14 @@ class SecurityAppApplicationTests {
 				.password("Nitu@123")
 				.build();
 
-		String token = jwtService.generateToken(user);
+//		String token = jwtService.generateToken(user);
+		String accessToken= jwtService.generateAccessToken(user);
+		String refreshToken= jwtService.generateRefreshToken(user);
 
-		System.out.println("token: " + token);
+		System.out.println("access: " + accessToken);
 
-		Long id = jwtService.getUserIdFromToken(token);
+//		Long id = jwtService.getUserIdFromToken(token);
+		Long id = jwtService.getUserIdFromToken(accessToken);
 
 		System.out.println("id: " + id);
 	}
