@@ -1,6 +1,7 @@
 package com.SecurityApp.config;
 
 import com.SecurityApp.filters.JwtAuthFilter;
+import com.SecurityApp.handlers.oauthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,42 +17,46 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    private  final JwtAuthFilter jwtAuthFilter;
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/error", "/auth/**").permitAll()
-//                        .requestMatchers("/posts/**").hasRole("ADMIN")
-//                                .requestMatchers("/posts/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .csrf(csrfConfig -> csrfConfig.disable())
-                .sessionManagement(sessionConfig ->
-                        sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        private final JwtAuthFilter jwtAuthFilter;
+        private  final oauthSuccessHandler oauthSuccessHandler;
 
-//                .formLogin(Customizer.withDefaults());
+        @Bean
+        SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+                httpSecurity
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/error", "/auth/**","/home.html").permitAll()
+                                                // .requestMatchers("/posts/**").hasRole("ADMIN")
+                                                // .requestMatchers("/posts/**").authenticated()
+                                                .anyRequest().authenticated())
+                                .csrf(csrfConfig -> csrfConfig.disable())
+                                .sessionManagement(sessionConfig -> sessionConfig
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .oauth2Login(oauthConfig -> oauthConfig
+                                        .failureUrl("/login?error=true")
+                                        .successHandler(oauthSuccessHandler)
+                                );
 
-        return httpSecurity.build();
-    }
+                // .formLogin(Customizer.withDefaults());
 
-    //AuthenticationManager
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration config){
-       return  config.getAuthenticationManager();
-    }
-//    @Bean
-//    UserDetailsService myInMemoryUserDetailsService(){
-//        UserDetails normalUser= User.withUsername("Nitu").
-//                password(passwordEncoder().encode("Nitu@123"))
-//                .roles("USER").build();
-//        UserDetails adminUser=User.withUsername("Riya")
-//                .password(passwordEncoder().encode("Riya@123"))
-//                .roles("ADMIN").build();
-//
-//        return  new InMemoryUserDetailsManager(normalUser,adminUser);
-//    }
+                return httpSecurity.build();
+        }
 
+        // AuthenticationManager
+        @Bean
+        AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
+                return config.getAuthenticationManager();
+        }
+        // @Bean
+        // UserDetailsService myInMemoryUserDetailsService(){
+        // UserDetails normalUser= User.withUsername("Nitu").
+        // password(passwordEncoder().encode("Nitu@123"))
+        // .roles("USER").build();
+        // UserDetails adminUser=User.withUsername("Riya")
+        // .password(passwordEncoder().encode("Riya@123"))
+        // .roles("ADMIN").build();
+        //
+        // return new InMemoryUserDetailsManager(normalUser,adminUser);
+        // }
 
 }
