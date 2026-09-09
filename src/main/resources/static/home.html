@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security App - Dashboard</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #ec4899;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .token-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            color: #38bdf8;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .response-box {
+            margin-top: 20px;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            font-family: monospace;
+            font-size: 13px;
+            color: #a7f3d0;
+            min-height: 48px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="badge">Authenticated</span>
+            <h1>Welcome to SecurityApp</h1>
+            <p class="subtitle">OAuth2 / JWT Authentication Successful</p>
+        </div>
+
+        <label style="font-size: 12px; color: var(--text-muted); font-weight: 600;">ACCESS TOKEN</label>
+        <div class="token-box" id="tokenDisplay">Loading token...</div>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="fetchPosts()">Get All Posts</button>
+            <button class="btn-secondary" onclick="refreshToken()">Refresh Token</button>
+        </div>
+
+        <div class="response-box" id="apiResponse">API output will appear here...</div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let token = urlParams.get('token') || localStorage.getItem('accessToken');
+
+        if (token) {
+            localStorage.setItem('accessToken', token);
+            document.getElementById('tokenDisplay').innerText = token;
+        } else {
+            document.getElementById('tokenDisplay').innerText = "No token found. Please log in first.";
+        }
+
+        async function fetchPosts() {
+            const out = document.getElementById('apiResponse');
+            out.innerText = "Fetching /posts...";
+            try {
+                const res = await fetch('/posts', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                out.innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                out.innerText = "Error: " + err.message;
+            }
+        }
+
+        async function refreshToken() {
+            const out = document.getElementById('apiResponse');
+            out.innerText = "Calling /auth/refresh...";
+            try {
+                const res = await fetch('/auth/refresh', { method: 'POST' });
+                const data = await res.json();
+                if (data.accessToken) {
+                    token = data.accessToken;
+                    localStorage.setItem('accessToken', token);
+                    document.getElementById('tokenDisplay').innerText = token;
+                }
+                out.innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                out.innerText = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -34,6 +34,14 @@ public class UserService implements UserDetailsService {
 
     }
 
+    public User loadUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
+    public User save(User newUser) {
+        return userRepository.save(newUser);
+    }
+
     public UserDTO signup(SignupDTO signupDTO) {
         Optional<User> user = userRepository.findByEmail(signupDTO.getEmail());
         if (user.isPresent()) {
