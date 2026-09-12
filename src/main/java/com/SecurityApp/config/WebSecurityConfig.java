@@ -1,5 +1,6 @@
 package com.SecurityApp.config;
 
+import com.SecurityApp.entities.enums.Role;
 import com.SecurityApp.filters.JwtAuthFilter;
 import com.SecurityApp.handlers.oauthSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,29 +14,36 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.SecurityApp.entities.enums.Role.ADMIN;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
         private final JwtAuthFilter jwtAuthFilter;
         private  final oauthSuccessHandler oauthSuccessHandler;
+        private  static  final  String [] publicRoute=
+                {
+                        "/error", "/auth/**","/home.html"
+                };
 
         @Bean
         SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
                 httpSecurity
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/error", "/auth/**","/home.html").permitAll()
+                                                .requestMatchers(publicRoute).permitAll()
                                                 // .requestMatchers("/posts/**").hasRole("ADMIN")
                                                 // .requestMatchers("/posts/**").authenticated()
+                                               .requestMatchers("/posts/**").hasRole(ADMIN.name())
                                                 .anyRequest().authenticated())
-                                .csrf(csrfConfig -> csrfConfig.disable())
-                                .sessionManagement(sessionConfig -> sessionConfig
+                                               .csrf(csrfConfig -> csrfConfig.disable())
+                                               .sessionManagement(sessionConfig -> sessionConfig
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                                .oauth2Login(oauthConfig -> oauthConfig
-                                        .failureUrl("/login?error=true")
-                                        .successHandler(oauthSuccessHandler)
-                                );
+                                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                                .oauth2Login(oauthConfig -> oauthConfig
+                                                        .failureUrl("/login?error=true")
+                                                        .successHandler(oauthSuccessHandler)
+                                                );
 
                 // .formLogin(Customizer.withDefaults());
 
