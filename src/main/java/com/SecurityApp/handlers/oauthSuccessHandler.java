@@ -25,6 +25,7 @@ public class oauthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserService userService;
     private final JwtService jwtService;
+    private final com.SecurityApp.services.SessionService sessionService;
 
     @Value("${deploy.env:development}")
     private String deployEnv;
@@ -50,6 +51,9 @@ public class oauthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+
+        // Create session in database
+        sessionService.generateNewSession(user, refreshToken);
 
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
