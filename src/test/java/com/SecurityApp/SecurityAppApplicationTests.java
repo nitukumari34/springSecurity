@@ -28,7 +28,9 @@ class SecurityAppApplicationTests {
 				.email("nituspj032001@gmail.com")
 				.name("Nitu")
 				.password("Nitu@123")
+				.roles(List.of(com.SecurityApp.entities.enums.Role.USER)) // ✅ Added
 				.build();
+
 
 //		String token = jwtService.generateToken(user);
 		String accessToken= jwtService.generateAccessToken(user);
