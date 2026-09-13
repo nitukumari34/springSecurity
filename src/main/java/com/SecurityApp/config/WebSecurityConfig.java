@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.SecurityApp.entities.enums.Permission.*;
 import static com.SecurityApp.entities.enums.Role.ADMIN;
 import static com.SecurityApp.entities.enums.Role.CREATOR;
 
@@ -40,7 +41,16 @@ public class WebSecurityConfig {
                                         .requestMatchers(HttpMethod.GET,"/posts/**").permitAll()
                                         .requestMatchers(HttpMethod.POST,"/posts/**")
                                         .hasAnyRole(ADMIN.name(), CREATOR.name())
-                                                .anyRequest().authenticated())
+                                        .requestMatchers(HttpMethod.POST,"/posts/**")
+                                        .hasAnyAuthority(POST_CREATE.name())
+                                        .requestMatchers(HttpMethod.GET,"/posts/**")
+                                        .hasAnyAuthority(POST_VIEW.name())
+                                        .requestMatchers(HttpMethod.PUT,"/posts/**")
+                                        .hasAnyAuthority(POST_UPDATE.name())
+                                        .requestMatchers(HttpMethod.DELETE,"/posts/**")
+                                        .hasAnyAuthority(POST_DELETE.name())
+
+                                        .anyRequest().authenticated())
                                                .csrf(csrfConfig -> csrfConfig.disable())
                                                .sessionManagement(sessionConfig -> sessionConfig
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
